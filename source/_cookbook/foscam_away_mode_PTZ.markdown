@@ -9,7 +9,7 @@ This requires a [Foscam IP Camera](/integrations/foscam) camera with PTZ (Pan, T
 Foscam Cameras can be controlled by Home Assistant through a number of CGI commands. 
 The following outlines examples of the switch, services, and scripts required to move between 2 preset destinations while controlling motion detection, but many other options of movement are provided in the Foscam CGI User Guide linked above.
 
-The `switch.foscam_motion` will control whether the motion detection is on or off. This switch supports `statecmd`, which checks the current state of motion detection.
+The `switch.foscam_motion` will control whether the motion detection is on or off. This switch supports `statecmd`, which checks the current state of motion detection. 
 
 ```yaml
 # Replace admin and password with an "Admin" privileged Foscam user
@@ -24,7 +24,12 @@ switch:
      command_state: 'curl -k --silent "https://ipaddress:443/cgi-bin/CGIProxy.fcgi?cmd=getMotionDetectConfig&usr=admin&pwd=password" | grep -oP "(?<=isEnable>).*?(?=</isEnable>)"'
      value_template: '{% raw %}{{ value == "1" }}{% endraw %}'
 ```
-
+```
+# Please note: grep -oP and the regex expression "?<=" do not work under hassio. 
+# Use grep -oE instead, with regex "(<isEnable>[01])". 
+# The value_template becomes '{{ value == "<isEnable>1" }}'. 
+# Also, for Foscam camera's with the Ambarella chipset the cmd strings are getMotionDetectConfig1 and setMotionDetectConfig1 (with a 1 added to the command).
+```
 The service `shell_command.foscam_turn_off` sets the camera to point down and away to indicate it is not recording, and `shell_command.foscam_turn_on` sets the camera to point where I'd like to record. h of these services require preset points to be added to your camera. See source above for additional information.
 
 ```yaml
